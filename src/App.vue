@@ -16,19 +16,14 @@
       </div>
       <Button type="submit" @click="createRoute">Поехали!</Button>
       <div v-for="(route, index) in routes" :key="index">
-        <div v-if="route.stops.length">
-          <Route
-            v-for="(stop, idx) in route.stops"
-            :route="route.route"
-            :totalTime="route.totalTime"
-            :key="idx"
-            :stopStation="stop.station"
-            :stopTime="stop.stopTime"
-          />
-        </div>
-        <div v-else>
-          <Route :route="route.route" :totalTime="route.totalTime" />
-        </div>
+        <Route
+          :route="route.route"
+          :totalTime="route.totalTime"
+          :stops="route.stops"
+          :index="index"
+          @saveRoute="saveRoutes"
+          @deleteRoute="deleteRoute"
+        />
       </div>
     </InputForm>
   </div>
@@ -56,6 +51,7 @@ export default {
         { point: "", time: "00:00" },
       ],
       routes: [],
+      mySavedRoutes: [],
       stopDuration: 5,
     };
   },
@@ -65,27 +61,6 @@ export default {
         point: this.points.point,
         time: this.points.time,
       });
-    },
-    getTimeDelta() {
-      // const [hoursFrom, minutesFrom] = this.routes.departureTime
-      //   .split(":")
-      //   .map(Number);
-      // const [hoursTo, minutesTo] = this.routes.arrivalTime
-      //   .split(":")
-      //   .map(Number);
-      // const totalMinutesFrom = hoursFrom * 60 + minutesFrom;
-      // const totalMinutesTo = hoursTo * 60 + minutesTo;
-      // let timeDelta = totalMinutesTo - totalMinutesFrom;
-      // if (timeDelta < 0) {
-      //   timeDelta += 24 * 60;
-      // }
-      // const deltaHours = Math.floor(timeDelta / 60);
-      // const deltaMinutes = timeDelta % 60;
-      // this.routes.timeDifference = `${String(deltaHours).padStart(
-      //   2,
-      //   "0"
-      // )}:${String(deltaMinutes).padStart(2, "0")}`;
-      // this.routes.showRoute = true;
     },
     createRoute() {
       if (this.points.length < 2) {
@@ -106,7 +81,7 @@ export default {
         let travelTime = currentTime - prevTime;
 
         if (i !== this.points.length - 1) {
-          travelTime += 5;
+          travelTime += this.stopDuration;
           stops.push({ station: this.points[i].point, stopTime: "5 минут" });
         }
 
@@ -115,12 +90,13 @@ export default {
         prevTime = currentTime;
       }
 
-      this.routes.push({
+      let newRoute = {
         route: route,
         totalTime: this.formatTime(totalMinutes),
         stops: stops,
-      });
-      console.log(this.routes);
+      };
+
+      this.routes.push(newRoute);
     },
     convertToMinutes(time) {
       let [hours, minutes] = time.split(":").map(Number);
@@ -131,8 +107,29 @@ export default {
       let mins = minutes % 60;
       return `${hours}ч ${mins}м`;
     },
-    saveRoute() {},
+    saveRoutes(index) {
+      this.mySavedRoutes.push(this.routes[index])
+      localStorage.setItem("savedRoutes", JSON.stringify(this.mySavedRoutes));
+      alert("маршрут сохранен");
+    },
+    loadRoutes() {
+      const savedRoutes = localStorage.getItem("savedRoutes");
+      if (savedRoutes) {
+        this.mySavedRoutes = JSON.parse(savedRoutes);
+      }
+    },
+
+
     editeRoute() {},
+
+
+    deleteRoute(index) {
+      this.routes.splice(index, 1);
+      localStorage.setItem("savedRoutes", JSON.stringify(this.mySavedRoutes));
+    },
+  },
+  created() {
+    this.loadRoutes();
   },
 };
 </script>

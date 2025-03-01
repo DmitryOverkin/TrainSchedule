@@ -1,20 +1,37 @@
 <template>
-  <p class="route">
-    <span class="route__title">{{ route }}</span>
-    <span class="route__stop-station-time">
-      <span v-if="stopStation">{{ stopStation }}</span>
-      <span v-if="stopTime">: <br />{{ stopTime }}</span>
-    </span>
-    <span class="route__time"> {{ totalTime }}</span>
-    <span>
+  <div class="route">
+    <h4 class="route__title">{{ route }}</h4>
+
+    <div class="route__stop-station-time">
+      <span v-if="stops.length > 0">Время стоянки:</span><br /><br />
+      <span v-for="(stop, index) in stops" :key="index">
+        <span>{{ stop.station }}</span
+        >:<br />
+        <span>{{ stop.stopTime }}</span
+        ><br /><br />
+      </span>
+    </div>
+
+    <div class="route__time">{{ totalTime }}</div>
+
+    <div>
       <slot>
         <div class="route__btns">
-          <button class="route__btn save" type="button"></button>
+          <button
+            class="route__btn save"
+            type="button"
+            @click="$emit('saveRoute', index)"
+          ></button>
           <button class="route__btn edit" type="button"></button>
+          <button
+            class="route__btn delete"
+            type="button"
+            @click="$emit('deleteRoute', index)"
+          ></button>
         </div>
       </slot>
-    </span>
-  </p>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -28,16 +45,13 @@ export default {
       type: String,
       default: null,
     },
-    stopTime: {
-      type: String,
-      required: false,
-      default: null,
+    index: Number,
+    stops: {
+      type: Array,
+      default: () => [],
     },
-    stopStation: {
-      type: String,
-      required: false,
-      default: "",
-    },
+  },
+  methods: {
   },
 };
 </script>
@@ -50,6 +64,7 @@ export default {
   grid-column-gap: 15px;
   grid-row-gap: 10px;
   font-size: 18px;
+  border-bottom: 1px solid;
 }
 
 .route__title {
@@ -90,6 +105,10 @@ export default {
 
 .edit {
   background-image: url("@/assets/editIcon.svg");
-  margin-left: 10px;
+  margin: 0 10px;
+}
+
+.delete {
+  background-image: url("@/assets/deleteIcon.svg");
 }
 </style>
