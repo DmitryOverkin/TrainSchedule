@@ -1,9 +1,8 @@
 <template>
   <input
-    class="input__field input__from"
-    type="text"
-    :placeholder="placeholder"
-    required
+    class="input__field input__date-from"
+    type="time"
+    :value="value"
     @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>
@@ -11,12 +10,12 @@
 <script>
 export default {
   props: {
-    placeholder: {
+    value: {
       type: String,
-      required: false,
-      default: "Введите текст...",
+      default: "00:00",
     },
   },
+  methods: {},
 };
 </script>
 

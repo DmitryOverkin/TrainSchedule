@@ -4,13 +4,12 @@
 
 <script>
 export default {
-    props:{
-        buttonType:{
-            type: String,
-            required: true,
-            default: 'button'
-        }
-    }
+  props: {
+    buttonType: {
+      type: String,
+      default: "button",
+    },
+  },
 };
 </script>
 
@@ -28,8 +27,8 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-button[type='submit']{
-    margin: 0 auto;
+button[type="submit"] {
+  margin: 0 auto;
 }
 
 .btn:hover {
