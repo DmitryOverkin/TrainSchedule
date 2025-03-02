@@ -23,6 +23,7 @@
             @click="$emit('saveRoute')"
           ></button>
           <button
+            v-if="isModalShow"
             class="route__btn edit"
             type="button"
             @click="$emit('editRoute', index)"
@@ -55,8 +56,16 @@ export default {
       type: Array,
       default: () => [],
     },
+    isModalShow: {
+      type: Boolean,
+    },
   },
-  methods: {},
+  methods: {
+  },
+  created(){
+    console.log(this.editShowBtn);
+    
+  }
 };
 </script>
 

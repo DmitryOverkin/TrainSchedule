@@ -13,17 +13,6 @@
             <TimeInput :value="stop.time" v-model="stop.time" />
           </div>
           <Button @click="saveChanges">Сохранить</Button>
-          <!-- <div v-if="isEditing" v-for="(point, index) in points">
-          <input v-model="localRoute.route" placeholder="Название маршрута" />
-          <input v-model="localRoute.totalTime" placeholder="Общее время" />
-
-          <div v-for="(stop, index) in localRoute.stops" :key="index">
-            <input v-model="stop.station" placeholder="Станция" />
-            <input v-model="stop.stopTime" placeholder="Время остановки" />
-          </div>
-
-     
-        </div> -->
         </div>
 
         <div v-else class="modal__edit-btn">
@@ -114,8 +103,6 @@ export default {
       let prevTime = this.convertToMinutes(this.stops[0].time);
       let totalMinutes = 0;
 
-      
-
       for (let i = 1; i < this.stops.length; i++) {
         let currentTime = this.convertToMinutes(this.stops[i].time);
         if (currentTime < prevTime) {
@@ -124,9 +111,8 @@ export default {
         let travelTime = currentTime - prevTime;
 
         if (i !== this.stops.length - 1) {
-          travelTime += 5; 
+          travelTime += 5;
         }
-        console.log(`i: ${i}, travelTime: ${travelTime}, totalMinutes: ${totalMinutes}`);
 
         updatedRouteString += ` -> ${this.stops[i].station} (${this.formatTime(
           travelTime

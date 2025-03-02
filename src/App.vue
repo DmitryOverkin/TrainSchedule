@@ -5,6 +5,8 @@
         @close="isModalShow = false"
         @deleteSavedRoute="deleteSavedRoute"
         :mySavedRoutes="mySavedRoutes"
+        @editSavedRoute="editSavedRoute"
+        :isModalShow="isModalShow"
       />
     </div>
     <div v-else-if="isEditing">
@@ -12,7 +14,7 @@
         @close="isEditing = false"
         :isEditing="isEditing"
         :editedRoute="editedRoute"
-        @saveEditedRoute="saveEditedRoute"
+        @saveEditedRoute="saveEditedSavedRoutes"
         :points="points"
       />
     </div>
@@ -33,6 +35,7 @@
       <Button type="submit" @click="createRoute">Поехали!</Button>
       <div v-for="(route, index) in routes" :key="index">
         <Route
+          :editShowBtn="isModalShow"
           :route="route.route"
           :totalTime="route.totalTime"
           :stops="route.stops"
@@ -40,6 +43,7 @@
           @editRoute="editeRoute"
           @saveRoute="saveRoutes(index)"
           @deleteRoute="deleteRoute(index)"
+          @deleteSavedRoute="deleteSavedRoute"
         />
       </div>
     </InputForm>
@@ -76,7 +80,6 @@ export default {
       stopDuration: 5,
       isModalShow: false,
       forceUpdateKey: 0,
-      isModalShow: false,
       isEditing: false,
       editedRoute: { route: "", totalTime: "", stops: [] },
       editedRouteIndex: null,
@@ -159,25 +162,24 @@ export default {
         this.mySavedRoutes = JSON.parse(savedRoutes);
       }
     },
-
-    editeRoute(index) {
+    editSavedRoute(index) {
+      this.isModalShow = false;
       this.isEditing = true;
       this.editedRouteIndex = index;
-      this.editedRoute = { ...this.routes[index] };
+      this.editedRoute = { ...this.mySavedRoutes[index] };
     },
-
-    saveEditedRoute(updatedRoute) {
+    saveEditedSavedRoutes(updatedRoute) {
       if (this.editedRouteIndex !== null) {
-        this.routes[this.editedRouteIndex].route = updatedRoute.route;
-        this.routes[this.editedRouteIndex].totalTime = updatedRoute.totalTime;
+        this.mySavedRoutes[this.editedRouteIndex].route = updatedRoute.route;
+        this.mySavedRoutes[this.editedRouteIndex].totalTime =
+          updatedRoute.totalTime;
       }
+      localStorage.setItem("savedRoutes", JSON.stringify(this.mySavedRoutes));
       this.isEditing = false;
       this.editedRouteIndex = null;
     },
-
     deleteRoute(index) {
       this.routes.splice(index, 1);
-      localStorage.setItem("savedRoutes", JSON.stringify(this.routes));
     },
     deleteSavedRoute(index) {
       this.mySavedRoutes.splice(index, 1);

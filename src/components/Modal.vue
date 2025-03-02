@@ -15,12 +15,14 @@
               :totalTime="route.totalTime"
               :stops="route.stops"
               :index="index"
+              :isModalShow="isModalShow"
+              @editRoute="$emit('editSavedRoute', index)"
               @deleteRoute="$emit('deleteSavedRoute', index)"
             />
           </div>
         </div>
         <div class="modal__btn">
-          <Button  @click="$emit('close')">Закрыть</Button>
+          <Button @click="$emit('close')">Закрыть</Button>
         </div>
       </div>
     </div>
@@ -35,7 +37,7 @@ export default {
   props: {
     mySavedRoutes: {
       type: Array,
-      default: [],
+      default: () => [],
     },
     isModalShow: {
       type: Boolean,
@@ -46,7 +48,6 @@ export default {
 </script>
 
 <style scoped>
-
 .modal__window {
   width: 800px;
   height: fit-content;
