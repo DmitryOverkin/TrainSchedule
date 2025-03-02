@@ -1,18 +1,34 @@
 <template>
   <div class="app">
-    <InputForm class="input__form" @submit.prevent>
+    <div v-if="isModalShow">
+      <Modal
+        @close="isModalShow = false"
+        @deleteSavedRoute="deleteSavedRoute"
+        :mySavedRoutes="mySavedRoutes"
+      />
+    </div>
+    <div v-else-if="isEditing">
+      <EditModal
+        @close="isEditing = false"
+        :isEditing="isEditing"
+        :editedRoute="editedRoute"
+        @saveEditedRoute="saveEditedRoute"
+        :points="points"
+      />
+    </div>
+    <InputForm v-else class="input__form" @submit.prevent>
       <h1 class="input__form-title">Расписание поездов</h1>
       <div
         class="input__form-points"
         v-for="(point, index) in points"
-        :key="index"
+        :key="forceUpdateKey + '-' + index"
       >
         <StationInput placeholder="Введите город" v-model="point.point" />
         <TimeInput :value="point.time" v-model="point.time" />
       </div>
       <div class="input__field-btns">
         <Button @click="addPoint">Добавить пункт</Button>
-        <Button>Мои маршруты</Button>
+        <Button @click="isModalShow = true">Мои маршруты</Button>
       </div>
       <Button type="submit" @click="createRoute">Поехали!</Button>
       <div v-for="(route, index) in routes" :key="index">
@@ -21,8 +37,9 @@
           :totalTime="route.totalTime"
           :stops="route.stops"
           :index="index"
-          @saveRoute="saveRoutes"
-          @deleteRoute="deleteRoute"
+          @editRoute="editeRoute"
+          @saveRoute="saveRoutes(index)"
+          @deleteRoute="deleteRoute(index)"
         />
       </div>
     </InputForm>
@@ -35,6 +52,8 @@ import StationInput from "./components/StationInput.vue";
 import Button from "./components/Button.vue";
 import Route from "./components/Route.vue";
 import TimeInput from "./components/TimeInput.vue";
+import Modal from "./components/Modal.vue";
+import EditModal from "./components/EditModal.vue";
 
 export default {
   components: {
@@ -43,6 +62,8 @@ export default {
     Button,
     Route,
     TimeInput,
+    Modal,
+    EditModal,
   },
   data() {
     return {
@@ -53,6 +74,12 @@ export default {
       routes: [],
       mySavedRoutes: [],
       stopDuration: 5,
+      isModalShow: false,
+      forceUpdateKey: 0,
+      isModalShow: false,
+      isEditing: false,
+      editedRoute: { route: "", totalTime: "", stops: [] },
+      editedRouteIndex: null,
     };
   },
   methods: {
@@ -66,6 +93,13 @@ export default {
       if (this.points.length < 2) {
         alert("Недостаточно данных для построения маршрута");
         return;
+      }
+
+      for (let i = 0; i < this.points.length; i++) {
+        if (!this.points[i].point.trim()) {
+          alert(`Введите название города для пункта ${i + 1}`);
+          return;
+        }
       }
 
       let route = `${this.points[0].point}`;
@@ -97,6 +131,13 @@ export default {
       };
 
       this.routes.push(newRoute);
+
+      this.points = [
+        { point: "", time: "00:00" },
+        { point: "", time: "00:00" },
+      ];
+
+      this.forceUpdateKey++;
     },
     convertToMinutes(time) {
       let [hours, minutes] = time.split(":").map(Number);
@@ -108,7 +149,7 @@ export default {
       return `${hours}ч ${mins}м`;
     },
     saveRoutes(index) {
-      this.mySavedRoutes.push(this.routes[index])
+      this.mySavedRoutes.push(this.routes[index]);
       localStorage.setItem("savedRoutes", JSON.stringify(this.mySavedRoutes));
       alert("маршрут сохранен");
     },
@@ -119,12 +160,27 @@ export default {
       }
     },
 
+    editeRoute(index) {
+      this.isEditing = true;
+      this.editedRouteIndex = index;
+      this.editedRoute = { ...this.routes[index] };
+    },
 
-    editeRoute() {},
-
+    saveEditedRoute(updatedRoute) {
+      if (this.editedRouteIndex !== null) {
+        this.routes[this.editedRouteIndex].route = updatedRoute.route;
+        this.routes[this.editedRouteIndex].totalTime = updatedRoute.totalTime;
+      }
+      this.isEditing = false;
+      this.editedRouteIndex = null;
+    },
 
     deleteRoute(index) {
       this.routes.splice(index, 1);
+      localStorage.setItem("savedRoutes", JSON.stringify(this.routes));
+    },
+    deleteSavedRoute(index) {
+      this.mySavedRoutes.splice(index, 1);
       localStorage.setItem("savedRoutes", JSON.stringify(this.mySavedRoutes));
     },
   },

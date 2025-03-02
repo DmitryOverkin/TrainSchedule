@@ -20,13 +20,17 @@
           <button
             class="route__btn save"
             type="button"
-            @click="$emit('saveRoute', index)"
+            @click="$emit('saveRoute')"
           ></button>
-          <button class="route__btn edit" type="button"></button>
+          <button
+            class="route__btn edit"
+            type="button"
+            @click="$emit('editRoute', index)"
+          ></button>
           <button
             class="route__btn delete"
             type="button"
-            @click="$emit('deleteRoute', index)"
+            @click="$emit('deleteRoute')"
           ></button>
         </div>
       </slot>
@@ -39,6 +43,7 @@ export default {
   props: {
     route: {
       type: String,
+      required: true,
       default: "",
     },
     totalTime: {
@@ -51,8 +56,7 @@ export default {
       default: () => [],
     },
   },
-  methods: {
-  },
+  methods: {},
 };
 </script>
 
